@@ -36,3 +36,15 @@ greeting = "hello"
 print(greeting * 5)
 
 print("the quick brown fox jumps over the lazy dog" * 2)
+
+
+
+
+def biggest_of_three():
+    if a >= b and a >= c:
+        biggest = a
+    elif b >= a and b >= c:
+        biggest = b
+    else:
+        biggest = c
+    return biggest
