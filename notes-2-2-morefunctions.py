@@ -40,11 +40,18 @@ print("the quick brown fox jumps over the lazy dog" * 2)
 
 
 
-def biggest_of_three():
-    if a >= b and a >= c:
-        biggest = a
-    elif b >= a and b >= c:
-        biggest = b
-    else:
-        biggest = c
-    return biggest
+# def biggest_of_three():
+
+def pyramid(base_width: int):
+    """Prints a pyramid of stars with a given base
+    Params:
+        base_width: width of base of pyramid
+        """
+    
+    for i in range(base_width):
+        print("*" * (i + 1))
+    
+pyramid(1)
+
+pyramid (5)
+pyramid (20)
