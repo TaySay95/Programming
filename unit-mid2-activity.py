@@ -36,18 +36,14 @@ def review(deck):
         print("DEFINITION:", b)
         input("Press ENTER key to proceed.")
     print("That is the end of the set of flashcards")
-        
-        
+         
 def main():
     print("Hello, I am study bot! I can help you create study cards for any upcoming quiz or test")
     print("To begin, let's create a title for your study cards.")
     title = input("TITLE: ").upper()
 
     print(f"Thank you, now we will add questions to your {title} flash card set")
-
-
-    
-    
+ 
     x = create()
     review(x)  
     while True:
