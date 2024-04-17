@@ -1,6 +1,6 @@
 # Taylor Sayson
-# Classes and Objects
 # 15 April 2024
+# Classes and Objects
 
 
 # Big Ideas:
@@ -14,6 +14,7 @@ class Pokemon:  # always name classes with capital
         of a Pokemon. It also contains the default
         state of the properties.
         """
+        print("A Pokemon is born!")
         self.name = ""
         self.id = 0
         self.weight = 0
@@ -46,6 +47,32 @@ class Pokemon:  # always name classes with capital
         else:
             return f"{self.name} batted away the {item}!"
 
+class Pikachu(Pokemon):
+    #child class of pokemon
+
+    def __init__(self, name="Pikachu"):
+        #Call the super-class constuctor
+        super().__init__()
+
+        # Setting the default values for
+        # a Pikachu
+        self.name = name
+        self.id = 25
+        self.type = "Electric"
+        self.actual_cry = "Pikachu"
+
+    def thunder(self, defender: Pokemon) -> str:
+        """Represents the thunder attack.
+
+    Params:
+        -defender: defending pokemon"""
+
+        response = f"{self.name} used thunder on {defender.name}."
+
+        if defender.type.lower() == "water":
+            response = response + " It was super effective."
+        
+        return response
 
 def main():
     # Create two Pokemon
@@ -84,15 +111,33 @@ def main():
     print(pokemon_two.type)
 
     # Test Pokemon cry
+    pokemon_one.actual_cry = "Pikachu"
     print(pokemon_one.cry())
+    pokemon_two.actual_cry = "Grraaaaaooooor"
     print(pokemon_two.cry())
 
     # Test Pokemon consume
     print(pokemon_one.consume("berry"))
     print(pokemon_one.consume("potion"))
-    print(pokemon_one.consume("poison"))  # mr. ubial doesn't condone
+    print(pokemon_one.consume("poison"))
     print(pokemon_two.consume("berry"))
+
+
+    #Create a new Pikachu object
+    pikachu_one = Pikachu()
+    # print name, type, and id of pikachu_one
+    print(pikachu_one.name, pikachu_one.type, pikachu_one.id)
+    # Use Pokemon meethods on Pikachu object
+    print(pikachu_one.cry())
+    print(pikachu_one.consume("berry"))
+
+
+
+    #Use thunder method on pokemon_two
+    print(pikachu_one.thunder(pokemon_one))
+    print(pikachu_one.thunder(pokemon_two))
 
 
 if __name__ == "__main__":
     main()
+
