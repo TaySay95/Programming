@@ -74,6 +74,32 @@ class Pikachu(Pokemon):
         
         return response
 
+class Bulbasaur(Pokemon):
+    #child class of pokemon
+
+    def __init__(self, name="Bulbasaur"):
+        #Call the super-class constuctor
+        super().__init__()
+
+
+        self.name = name
+        self.id = 1
+        self.type = "Grass"
+        self.actual_cry = "WAHHH"
+
+    def growl(self, defender: Pokemon) -> str:
+        """Represents the growl attack.
+
+    Params:
+        -defender: defending pokemon"""
+
+        response = f"{self.name} used Growl on {defender.name}."
+
+        if defender.type.lower() == "water":
+            response = response + " It was super effective."
+        
+        return response
+
 def main():
     # Create two Pokemon
 
@@ -137,6 +163,10 @@ def main():
     print(pikachu_one.thunder(pokemon_one))
     print(pikachu_one.thunder(pokemon_two))
 
+    bulbasaur_one = Bulbasaur()
+    print(bulbasaur_one.name, bulbasaur_one.type, bulbasaur_one.id)
+    print(bulbasaur_one.cry())
+    print(bulbasaur_one.consume("berry"))
 
 if __name__ == "__main__":
     main()
