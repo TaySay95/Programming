@@ -31,97 +31,6 @@ def update(self):
         print(self.rect.x, self.rect.y)
 
 
-
-
-class Kanye(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__()
-        self.image = pygame.image.load("./Images/Kanye-West-PNG.png")
-        self.rect = self.image.get_rect() 
-
-        self.image = pygame.transform.scale(self.image, (self.rect.width // 2, self.rect.height // 2))
-
-        self.rect.centerx = random.randrange(250,970)
-        self.rect.centery = random.randrange(250,470)
-
-        self.vel_x = random.randrange(-8, 8)
-        self.vel_y = random.randrange(-8, 8)
-
-    def update(self):
-                self.rect.x += self.vel_x
-                self.rect.y += self.vel_y
-
-                if self.rect.right >= 1280:
-                    self.vel_x = -self.vel_x
-                if self.rect.left <= 0:
-                    self.vel_x = -self.vel_x
-                if self.rect.top <=0:
-                    self.vel_y = -self.vel_y
-                if self.rect.bottom >=720:
-                    self.vel_y = -self.vel_y
-
-                print(self.rect.x, self.rect.y)
-
-
-class Rb(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__()
-        self.image = pygame.image.load("./Images/rb.webp")
-        self.rect = self.image.get_rect() 
-
-        self.image = pygame.transform.scale(self.image, (self.rect.width // 2, self.rect.height // 2))
-
-        self.rect.centerx = random.randrange(200,1020)
-        self.rect.centery = random.randrange(200,520)
-
-        self.vel_x = random.randrange(-8, 8)
-        self.vel_y = random.randrange(-8, 8)
-
-    def update(self):
-                self.rect.x += self.vel_x
-                self.rect.y += self.vel_y
-
-                if self.rect.right >= 1280:
-                    self.vel_x = -self.vel_x
-                if self.rect.left <= 0:
-                    self.vel_x = -self.vel_x
-                if self.rect.top <=0:
-                    self.vel_y = -self.vel_y
-                if self.rect.bottom >=720:
-                    self.vel_y = -self.vel_y
-
-                print(self.rect.x, self.rect.y)
-
-class Mercedes(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__()
-        self.image = pygame.image.load("./Images/mercedes.png")
-        self.rect = self.image.get_rect() 
-
-        self.image = pygame.transform.scale(self.image, (self.rect.width // 2, self.rect.height // 2))
-
-        self.rect.centerx = random.randrange(200,1020)
-        self.rect.centery = random.randrange(200,520)
-
-        self.vel_x = 1
-        self.vel_y = 1
-
-    def update(self):
-                self.rect.x += self.vel_x
-                self.rect.y += self.vel_y
-
-                if self.rect.right >= 1280:
-                    self.vel_x = -self.vel_x
-                if self.rect.left <= 0:
-                    self.vel_x = -self.vel_x
-                if self.rect.top <=0:
-                    self.vel_y = -self.vel_y
-                if self.rect.bottom >=720:
-                    self.vel_y = -self.vel_y
-
-                print(self.rect.x, self.rect.y)
-
-
 class Dvdlogo(pygame.sprite.Sprite):
     """Represents the DVD Logo"""
     def __init__(self):
@@ -140,6 +49,7 @@ class Dvdlogo(pygame.sprite.Sprite):
 
         self.vel_x = random.randrange(-8, 8)
         self.vel_y = random.randrange(-8, 8)
+
 
 
     def update(self):
@@ -188,15 +98,17 @@ def start():
     clock = pygame.time.Clock()
 
     dvdlogo = Dvdlogo()
-    kanye = Kanye()
-    rb = Rb()
-    mercedes = Mercedes()
+    dvdlogo2 = Dvdlogo()
+    dvdlogo3 = Dvdlogo()
+  
+   
 
     all_sprites = pygame.sprite.Group()
-    all_sprites.add(dvdlogo)
-    all_sprites.add(kanye)
-    all_sprites.add(rb)
-    all_sprites.add(mercedes)
+
+
+    all_sprites.add(Dvdlogo())
+
+
     pygame.display.set_caption("DVD Screen Saver")
 
     # --MAIN LOOP--
@@ -206,11 +118,22 @@ def start():
             if event.type == pygame.QUIT:
                 done = True
 
+        # Listen for the keyboard space bar to be pressed
+            # spawn a new dvdlogo object
+            if event.type == pygame.KEYDOWN:
+                #SPACEBAR
+                if pygame.key.get_pressed()[pygame.K_SPACE]:
+                    all_sprites.add(Dvdlogo())
+            # if event.type == pygame.KEYDOWN:
+            #     #1 key
+            #     if pygame.key.get_pressed()[pygame.K_1]:
+            #         all_sprites.self.vel_x = vel_x + 1
+
 		# --- Update the world state
         all_sprites.update()
 
         # --- Draw items
-        screen.fill(PURPLE)
+        screen.fill(BLACK)
 
         all_sprites.draw(screen)
 
