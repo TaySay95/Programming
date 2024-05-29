@@ -22,9 +22,8 @@ WIDTH = 1000
 HEIGHT = 1200
 SCREEN_SIZE = (WIDTH, HEIGHT)
 
-
 class Puck(pg.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, players:pg.sprite.Group = None):
         super().__init__()
 
         self.image = pg.Surface((30,30))
@@ -32,16 +31,18 @@ class Puck(pg.sprite.Sprite):
         pg.draw.circle(self.image, PUCKBLACK, (15,15), 15)
 
         self.rect = self.image.get_rect()
+        self.rect.center = (WIDTH // 2, HEIGHT // 2)
         self.vel_x = 0
         self.vel_y = 0
-        self.deceleration = 0.03
+        self.deceleration = 0.08
         self.slowdecel = .01
+
+        self.player_sprites = players
 
     def update(self):
         """ Move puck based on contact """
 
-
-        collisions = pg.sprite.spritecollide(self, all_sprites, False)
+        collisions = pg.sprite.spritecollide(self, self.player_sprites, False)
         for x in collisions:
             if isinstance(x, Player):
                 # Increase puck velocity to 15
@@ -63,11 +64,10 @@ class Puck(pg.sprite.Sprite):
             self.vel_y = self.vel_y * -1
 
         self.rect.x += self.vel_x
-
         self.rect.y += self.vel_y
 
         if self.vel_x >1:
-                self.vel_x = max(self.vel_x - self.deceleration, 0)
+            self.vel_x = max(self.vel_x - self.deceleration, 0)
         elif self.vel_x <1:
             self.vel_x = min(self.vel_x + self.deceleration, 0)
         elif self.vel_x > 0:
@@ -139,8 +139,6 @@ class Player(pg.sprite.Sprite):
                 
                 
         self.rect.x += self.vel_x
-
-        # Move up/down
         self.rect.y += self.vel_y
         
         # Keep player within screen bounds
@@ -167,21 +165,20 @@ def start():
     clock = pg.time.Clock()
 
     # All sprites go in this sprite Group
+
     all_sprites = pg.sprite.Group()
+    player_sprites = pg.sprite.Group()
     # Create the Player sprite object
 
     player = Player(BLUE, {
-        'left': pg.K_LEFT, 'right': pg.K_RIGHT, 'up': pg.K_UP, 'down': pg.K_DOWN
-    })
+        'left': pg.K_LEFT, 'right': pg.K_RIGHT, 'up': pg.K_UP, 'down': pg.K_DOWN})
     player2 = Player(RED, {
-        'left': pg.K_a, 'right': pg.K_d, 'up': pg.K_w, 'down': pg.K_s
-    })
+        'left': pg.K_a, 'right': pg.K_d, 'up': pg.K_w, 'down': pg.K_s})
 
-    puck = Puck()
-
-    player_sprites = pg.sprite.Group()
     player_sprites.add(player)
     player_sprites.add(player2)
+
+    puck = Puck(player_sprites)
 
 
     all_sprites.add(player)
