@@ -34,43 +34,64 @@ class Ball(pg.sprite.Sprite):
 
 
         self.player_sprites = players
+        self.hold = None
+        self.dribble = False
 
+    
     def update(self):
-        """ Move puck based on contact """
+        """ Move ball """
+        collided = pg.sprite.spritecollide(self, self.player_sprites, False)
 
+        if collided:
+            self.hold = collided[0]
+
+
+        if self.hold:
+
+            if self.hold.vel_x>0:
+                self.rect.left = self.hold.rect.right -15
+            elif self.hold.vel_x < 0:
+                self.rect.right = self.hold.rect.left +15
+            if self.hold.rect.bottom<HEIGHT:
+                self.rect.centery = self.hold.rect.centery
+            elif self.hold.rect.bottom==HEIGHT:
+                self.vel_y = 5
+        
+                
             
-        if self.rect.top < 0:
-            self.rect.top = 0  # keep it inside the screen
-            self.vel_y *= -1
-        if self.rect.bottom > HEIGHT:
-            self.rect.bottom = HEIGHT
-            self.vel_y *= -1
-        if self.rect.left < 0:
-            self.rect.left = 0
-            self.vel_x *= -1
-        if self.rect.right > WIDTH:
-            self.rect.right = WIDTH
-            self.vel_x *= -1
-            
+        else:
+            if self.rect.top < 0:
+                self.rect.top = 0 
+                self.vel_y *= -1
+            if self.rect.bottom > HEIGHT:
+                self.rect.bottom = HEIGHT
+                self.vel_y *= -1
+            if self.rect.left < 0:
+                self.rect.left = 0
+                self.vel_x *= -1
+            if self.rect.right > WIDTH:
+                self.rect.right = WIDTH
+                self.vel_x *= -1
+                
 
-        if self.vel_y >=0:
-            self.vel_y = self.vel_y + .5
-        if self.vel_y <0:
-            self.vel_y = self.vel_y + .65
-        if -0.5<self.vel_y<0.5 and self.rect.bottom ==HEIGHT:
-            self.vel_y *=0
+            if self.vel_y >=0:
+                self.vel_y = self.vel_y + .5
+            if self.vel_y <0:
+                self.vel_y = self.vel_y + .65
+            if -0.5<self.vel_y<0.5 and self.rect.bottom ==HEIGHT:
+                self.vel_y *=0
 
-        if self.vel_x >1:
-            self.vel_x = max(self.vel_x - .017, 0)
-        elif self.vel_x <1:
-            self.vel_x = min(self.vel_x + .017, 0)
-        elif self.vel_x > 0:
-            self.vel_x = max(self.vel_x - .005, 0)
-        elif self.vel_x < 0:
-            self.vel_x = min(self.vel_x + .005, 0)
+            if self.vel_x >1:
+                self.vel_x = max(self.vel_x - .017, 0)
+            elif self.vel_x <1:
+                self.vel_x = min(self.vel_x + .017, 0)
+            elif self.vel_x > 0:
+                self.vel_x = max(self.vel_x - .005, 0)
+            elif self.vel_x < 0:
+                self.vel_x = min(self.vel_x + .005, 0)
 
-        self.rect.x += self.vel_x
-        self.rect.y += self.vel_y
+            self.rect.x += self.vel_x
+            self.rect.y += self.vel_y
 
 
 
@@ -86,7 +107,6 @@ class Player(pg.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.centerx = x
         self.rect.centery = y
-        # Initialize velocity
         self.vel_x = 0
         self.vel_y = 10
         self.acceleration = 0.8
@@ -115,15 +135,11 @@ class Player(pg.sprite.Sprite):
                 self.vel_x = min(self.vel_x + self.deceleration, 0)
 
         # Handle vertical movement
-
         if pressed[self.input["up"]] and self.rect.bottom > 570 and self.vel_y<=0:
             self.vel_y = -16
         else:
             self.vel_y = self.vel_y + .7
-        # elif pressed[self.input["down"]]:
-        #     self.vel_y = min(self.vel_y + self.acceleration, 6)
-                
-                
+             
         self.rect.x += self.vel_x
         self.rect.y += self.vel_y
         
@@ -140,7 +156,7 @@ class Player(pg.sprite.Sprite):
         if self.rect.top < 0:
             self.rect.top = 0
             self.vel_y = 0
-                 
+
 def start():
     """Environment Setup and Game Loop"""
     pg.init()
@@ -156,17 +172,11 @@ def start():
     player_sprites = pg.sprite.Group()
     # Create the Player sprite object
 
-    player = Player(BLUE, {
-        'left': pg.K_LEFT, 'right': pg.K_RIGHT, 'up': pg.K_UP, 'down': pg.K_DOWN}, 1180, 720)
-    player2 = Player(RED, {
-        'left': pg.K_a, 'right': pg.K_d, 'up': pg.K_w, 'down': pg.K_s}, 100, 720)
-
+    player = Player(BLUE, {'left': pg.K_LEFT, 'right': pg.K_RIGHT, 'up': pg.K_UP, 'down': pg.K_DOWN}, 1180, 720)
+    player2 = Player(RED, {'left': pg.K_a, 'right': pg.K_d, 'up': pg.K_w, 'down': pg.K_s}, 100, 720)
     player_sprites.add(player)
     player_sprites.add(player2)
-
     ball = Ball(player_sprites)
-
-
     all_sprites.add(player)
     all_sprites.add(player2)
     all_sprites.add(ball)
@@ -184,7 +194,6 @@ def start():
 
         # --- Draw items
         screen.fill(WHITE)
-
         all_sprites.draw(screen)
 
         # Update the screen with anything new
@@ -195,10 +204,8 @@ def start():
 
     pg.quit()
 
-
 def main():
     start()
-
 
 if __name__ == "__main__":
     main()
