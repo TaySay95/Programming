@@ -36,7 +36,7 @@ class Ball(pg.sprite.Sprite):
         self.player_sprites = players
         self.hold = None
         self.dribble = False
-
+        self.vertical_direction = 1
     
     def update(self):
         """ Move ball """
@@ -45,19 +45,27 @@ class Ball(pg.sprite.Sprite):
         if collided:
             self.hold = collided[0]
 
-
         if self.hold:
 
             if self.hold.vel_x>0:
                 self.rect.left = self.hold.rect.right -15
             elif self.hold.vel_x < 0:
                 self.rect.right = self.hold.rect.left +15
-            if self.hold.rect.bottom<HEIGHT:
-                self.rect.centery = self.hold.rect.centery
-            elif self.hold.rect.bottom==HEIGHT:
-                self.vel_y = 5
-        
-                
+
+            self.rect.x += self.hold.vel_x
+            if self.hold.rect.bottom == HEIGHT:
+            # if self.hold.rect.bottom<HEIGHT: 
+            #     self.rect.centery = self.hold.rect.centery
+            # elif self.hold.rect.bottom==HEIGHT:
+            #     self.vel_y = 5
+                if self.rect.y <= 630:
+                    self.vertical_direction = 1
+                elif self.rect.y >= 670:
+                    self.vertical_direction = -1
+                self.rect.y += 3 * self.vertical_direction
+            else:
+                self.rect.centery = self.hold.rect.centery -15
+                    
             
         else:
             if self.rect.top < 0:
@@ -78,9 +86,9 @@ class Ball(pg.sprite.Sprite):
                 self.vel_y = self.vel_y + .5
             if self.vel_y <0:
                 self.vel_y = self.vel_y + .65
-            if -0.5<self.vel_y<0.5 and self.rect.bottom ==HEIGHT:
+            if -0.5<self.vel_y<0.5 and self.rect.bottom == HEIGHT:
                 self.vel_y *=0
-
+ 
             if self.vel_x >1:
                 self.vel_x = max(self.vel_x - .017, 0)
             elif self.vel_x <1:
@@ -172,7 +180,7 @@ def start():
     player_sprites = pg.sprite.Group()
     # Create the Player sprite object
 
-    player = Player(BLUE, {'left': pg.K_LEFT, 'right': pg.K_RIGHT, 'up': pg.K_UP, 'down': pg.K_DOWN}, 1180, 720)
+    player = Player(BLUE, {'left': pg.K_LEFT, 'right': pg.K_RIGHT, 'up': pg.K_UP, 'down': pg.K_DOWN}, 180, 720)
     player2 = Player(RED, {'left': pg.K_a, 'right': pg.K_d, 'up': pg.K_w, 'down': pg.K_s}, 100, 720)
     player_sprites.add(player)
     player_sprites.add(player2)
