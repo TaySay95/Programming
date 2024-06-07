@@ -3,6 +3,7 @@
 
 import random
 import pygame as pg
+import time
 
 # --CONSTANTS--
 # COLOURS
@@ -37,7 +38,9 @@ class Ball(pg.sprite.Sprite):
         self.hold = None
         self.dribble = False
         self.vertical_direction = 1
-    
+        self.shotframes = 0
+        self.startshot= None
+        self.endshot = None
     def update(self):
         """ Move ball """
         collided = pg.sprite.spritecollide(self, self.player_sprites, False)
@@ -46,27 +49,52 @@ class Ball(pg.sprite.Sprite):
             self.hold = collided[0]
 
         if self.hold:
-
-            if self.hold.vel_x>0:
-                self.rect.left = self.hold.rect.right -15
-            elif self.hold.vel_x < 0:
-                self.rect.right = self.hold.rect.left +15
-
-            self.rect.x += self.hold.vel_x
             if self.hold.rect.bottom == HEIGHT:
-            # if self.hold.rect.bottom<HEIGHT: 
-            #     self.rect.centery = self.hold.rect.centery
-            # elif self.hold.rect.bottom==HEIGHT:
-            #     self.vel_y = 5
+                if self.hold.vel_x>0:
+                    self.rect.left = self.hold.rect.right -15
+                elif self.hold.vel_x < 0:
+                    self.rect.right = self.hold.rect.left +15
+                elif self.hold.vel_x ==0:
+                    if self.hold.initial == 100:
+                        self.rect.left = self.hold.rect.right -15
+                    if self.hold.initial == 1180:
+                        self.rect.right = self.hold.rect.left +15
                 if self.rect.y <= 630:
                     self.vertical_direction = 1
                 elif self.rect.y >= 670:
                     self.vertical_direction = -1
                 self.rect.y += 3 * self.vertical_direction
+               
+            pressed = pg.key.get_pressed()
+            if self.hold.rect.bottom < HEIGHT and pressed[self.hold.input["up"]]:
+                
+                if self.shotframes == 0:
+                    self.shotframes = 30
+                    self.endshot = self.hold.rect.top + 23
+                    self.startshot = self.hold.rect.top +65
+
+                if self.shotframes > 0:
+                    changey = (self.endshot - self.startshot)/self.shotframes
+                    self.rect.bottom += changey
+                    self.shotframes -= 1
+                
+                self.rect.bottom = self.hold.rect.top + 23
+                
+                if self.hold.initial == 100:
+                    self.rect.left = self.hold.rect.right -35
+                if self.hold.initial == 1180:
+                    self.rect.right = self.hold.rect.left +35
             else:
-                self.rect.centery = self.hold.rect.centery -15
-                    
-            
+                self.shotframes =0
+                if self.hold.initial == 100:
+                    self.hold = None
+                    self.vel_x = 10
+                    self.vel_y =-15
+                elif self.hold.initial == 1180:
+                    self.hold = None
+                    self.vel_x = -10
+                    self.vel_y = -15
+    
         else:
             if self.rect.top < 0:
                 self.rect.top = 0 
@@ -104,7 +132,7 @@ class Ball(pg.sprite.Sprite):
 
 
 class Player(pg.sprite.Sprite):
-    def __init__(self, color, input, x,y):
+    def __init__(self, color, input, x, y):
         super().__init__()
 
 
@@ -113,6 +141,7 @@ class Player(pg.sprite.Sprite):
         pg.draw.circle(self.image, color, (45, 45), 45)
 
         self.rect = self.image.get_rect()
+        self.initial = x
         self.rect.centerx = x
         self.rect.centery = y
         self.vel_x = 0
@@ -180,8 +209,8 @@ def start():
     player_sprites = pg.sprite.Group()
     # Create the Player sprite object
 
-    player = Player(BLUE, {'left': pg.K_LEFT, 'right': pg.K_RIGHT, 'up': pg.K_UP, 'down': pg.K_DOWN}, 180, 720)
-    player2 = Player(RED, {'left': pg.K_a, 'right': pg.K_d, 'up': pg.K_w, 'down': pg.K_s}, 100, 720)
+    player = Player(BLUE, {'left': pg.K_LEFT, 'right': pg.K_RIGHT, 'up': pg.K_UP, 'down': pg.K_DOWN}, 1180, 720,)
+    player2 = Player(RED, {'left': pg.K_a, 'right': pg.K_d, 'up': pg.K_w, 'down': pg.K_s}, 100, 720,)
     player_sprites.add(player)
     player_sprites.add(player2)
     ball = Ball(player_sprites)
@@ -201,7 +230,7 @@ def start():
         all_sprites.update()
 
         # --- Draw items
-        screen.fill(WHITE)
+        screen.fill(BLACK)
         all_sprites.draw(screen)
 
         # Update the screen with anything new
