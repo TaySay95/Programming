@@ -20,6 +20,20 @@ WIDTH = 1280
 HEIGHT = 720
 SCREEN_SIZE = (WIDTH, HEIGHT)
 
+RIMIMAGE = pg.image.load("./Images/rim.png")
+RIM = pg.transform.scale(RIMIMAGE, (RIMIMAGE.get_width() // 8, RIMIMAGE.get_height() // 8))
+
+class Rim(pg.sprite.Sprite):
+    def __init__(self, x, rim:pg.sprite.Group = None):
+        super().__init__()
+
+        self.image = RIM
+        self.rect = self.image.get_rect()
+        self.rim_sprites = rim
+        # Spawn in a random location
+        self.rect.centerx = x
+        self.rect.y = 190
+
 class Ball(pg.sprite.Sprite):
     def __init__(self, players:pg.sprite.Group = None):
         super().__init__()
@@ -41,11 +55,16 @@ class Ball(pg.sprite.Sprite):
         self.shotframes = 0
         self.startshot= None
         self.endshot = None
+
+        self.shot_start = 0
+
+        self.shot_cooldown = 1000
+
     def update(self):
         """ Move ball """
         collided = pg.sprite.spritecollide(self, self.player_sprites, False)
 
-        if collided:
+        if collided: # and pg.time.get_ticks() - self.shot_start > self.shot_cooldown:
             self.hold = collided[0]
 
         if self.hold:
@@ -63,7 +82,7 @@ class Ball(pg.sprite.Sprite):
                     self.vertical_direction = 1
                 elif self.rect.y >= 670:
                     self.vertical_direction = -1
-                self.rect.y += 3 * self.vertical_direction
+                self.rect.y += 4 * self.vertical_direction
                
             pressed = pg.key.get_pressed()
             if self.hold.rect.bottom < HEIGHT and pressed[self.hold.input["up"]]:
@@ -85,6 +104,8 @@ class Ball(pg.sprite.Sprite):
                 if self.hold.initial == 1180:
                     self.rect.right = self.hold.rect.left +35
             else:
+                self.shot_start = pg.time.get_ticks()
+
                 self.shotframes =0
                 if self.hold.initial == 100:
                     self.hold = None
@@ -207,17 +228,22 @@ def start():
 
     all_sprites = pg.sprite.Group()
     player_sprites = pg.sprite.Group()
+    rim_sprites = pg.sprite.Group()
     # Create the Player sprite object
 
     player = Player(BLUE, {'left': pg.K_LEFT, 'right': pg.K_RIGHT, 'up': pg.K_UP, 'down': pg.K_DOWN}, 1180, 720,)
     player2 = Player(RED, {'left': pg.K_a, 'right': pg.K_d, 'up': pg.K_w, 'down': pg.K_s}, 100, 720,)
     player_sprites.add(player)
     player_sprites.add(player2)
+    
+    rim1 = Rim(80, rim_sprites)
+    rim2 = Rim(1200, rim_sprites)
     ball = Ball(player_sprites)
     all_sprites.add(player)
     all_sprites.add(player2)
     all_sprites.add(ball)
-
+    all_sprites.add(rim1)
+    all_sprites.add(rim2)
     pg.display.set_caption("GAME")
 
     # --Main Loop--
