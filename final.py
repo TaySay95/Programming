@@ -52,21 +52,34 @@ class Ball(pg.sprite.Sprite):
         self.hold = None
         self.dribble = False
         self.vertical_direction = 1
-        self.shotframes = 0
-        self.startshot= None
-        self.endshot = None
 
-        self.shot_start = 0
+        self.cooldown = 1500
+        self.cooldownfail = pg.time.get_ticks()
 
-        self.shot_cooldown = 1000
-
+        self.shotloaded = False
+        
     def update(self):
         """ Move ball """
         collided = pg.sprite.spritecollide(self, self.player_sprites, False)
 
-        if collided: # and pg.time.get_ticks() - self.shot_start > self.shot_cooldown:
+        if collided: 
             self.hold = collided[0]
-
+            
+        # else:
+        #     timenow = pg.time.get_ticks()
+        #     if timenow - self.cooldownfail> self.cooldown:
+        #         self.hold = None
+           
+        if self.hold and self.hold.rect.bottom == HEIGHT:
+            self.shotloaded = True
+        if not self.hold:
+            self.shotloaded = False
+        
+        if self.shotloaded:
+            print("shot loaded")
+        else:
+            print("shot unloaded")
+        
         if self.hold:
             if self.hold.rect.bottom == HEIGHT:
                 if self.hold.vel_x>0:
@@ -85,36 +98,42 @@ class Ball(pg.sprite.Sprite):
                 self.rect.y += 4 * self.vertical_direction
                
             pressed = pg.key.get_pressed()
-            if self.hold.rect.bottom < HEIGHT and pressed[self.hold.input["up"]]:
-                
-                if self.shotframes == 0:
-                    self.shotframes = 30
-                    self.endshot = self.hold.rect.top + 23
-                    self.startshot = self.hold.rect.top +65
-
-                if self.shotframes > 0:
-                    changey = (self.endshot - self.startshot)/self.shotframes
-                    self.rect.bottom += changey
-                    self.shotframes -= 1
-                
-                self.rect.bottom = self.hold.rect.top + 23
-                
-                if self.hold.initial == 100:
-                    self.rect.left = self.hold.rect.right -35
-                if self.hold.initial == 1180:
-                    self.rect.right = self.hold.rect.left +35
-            else:
-                self.shot_start = pg.time.get_ticks()
-
-                self.shotframes =0
+            if self.hold.rect.bottom > 600 and self.hold.vel_y > 0 and self.shotloaded:
                 if self.hold.initial == 100:
                     self.hold = None
                     self.vel_x = 10
                     self.vel_y =-15
+
+                    
                 elif self.hold.initial == 1180:
                     self.hold = None
                     self.vel_x = -10
                     self.vel_y = -15
+
+                    
+            elif (self.hold.rect.bottom < HEIGHT and pressed[self.hold.input["up"]]) or (self.hold.rect.bottom < HEIGHT and not self.shotloaded):
+
+                    self.rect.bottom = self.hold.rect.top + 23
+                    
+                    if self.hold.initial == 100:
+                        self.rect.left = self.hold.rect.right -35
+                    if self.hold.initial == 1180:
+                        self.rect.right = self.hold.rect.left +35
+            
+            else:
+                # timenow = pg.time.get_ticks()
+                # if timenow - self.cooldownfail >self.cooldown:
+                    if self.shotloaded:
+                        if self.hold.initial == 100:
+                            self.hold = None
+                            self.vel_x = 10
+                            self.vel_y =-15
+
+                        elif self.hold.initial == 1180:
+                            self.hold = None
+                            self.vel_x = -10
+                            self.vel_y = -15
+                        
     
         else:
             if self.rect.top < 0:
