@@ -20,8 +20,10 @@ WIDTH = 1280
 HEIGHT = 720
 SCREEN_SIZE = (WIDTH, HEIGHT)
 
-RIMIMAGE = pg.image.load("./Images/rim.png")
-RIM = pg.transform.scale(RIMIMAGE, (RIMIMAGE.get_width() // 8, RIMIMAGE.get_height() // 8))
+RIMIMAGE = pg.image.load("./Images/frontnet.png")
+RIM = pg.transform.scale(RIMIMAGE, (RIMIMAGE.get_width() // 3, RIMIMAGE.get_height() // 3))
+BACKRIM = pg.image.load("./Images/backnet.png")
+BACK = pg.transform.scale(BACKRIM, (BACKRIM.get_width() // 3, BACKRIM.get_height() // 3))
 
 class Rim(pg.sprite.Sprite):
     def __init__(self, x, rim:pg.sprite.Group = None):
@@ -30,12 +32,22 @@ class Rim(pg.sprite.Sprite):
         self.image = RIM
         self.rect = self.image.get_rect()
         self.rim_sprites = rim
-        # Spawn in a random location
         self.rect.centerx = x
-        self.rect.y = 190
+        self.rect.y = 210
+
+
+
+class Back(pg.sprite.Sprite):
+    def __init__(self,x, back:pg.sprite.Group = None):
+        super(). __init__()
+        self.image = BACK
+        self.rect= self.image.get_rect()
+        self.all_sprites = back
+        self.rect.centerx= x
+        self.rect.y = 210
 
 class Ball(pg.sprite.Sprite):
-    def __init__(self, players:pg.sprite.Group = None):
+    def __init__(self, players:pg.sprite.Group = None, rims:pg.sprite.Group = None):
         super().__init__()
 
         self.image = pg.Surface((50,50))
@@ -49,6 +61,7 @@ class Ball(pg.sprite.Sprite):
 
 
         self.player_sprites = players
+        self.rim_sprites= rims
         self.hold = None
         self.dribble = False
         self.vertical_direction = 1
@@ -74,12 +87,7 @@ class Ball(pg.sprite.Sprite):
             self.shotloaded = True
         if not self.hold:
             self.shotloaded = False
-        
-        if self.shotloaded:
-            print("shot loaded")
-        else:
-            print("shot unloaded")
-        
+    
         if self.hold:
             if self.hold.rect.bottom == HEIGHT:
                 if self.hold.vel_x>0:
@@ -136,6 +144,13 @@ class Ball(pg.sprite.Sprite):
                         
     
         else:
+            # rimhit = pg.sprite.spritecollide(self, self.rim_sprites, False)
+            # if rimhit:
+            #     self.hit = rimhit[0]
+            # if self.hit.rect.bottom == self.rect.top and self.vel_y >0:
+            #     self.vel_y *= self.vel_y *-1
+
+
             if self.rect.top < 0:
                 self.rect.top = 0 
                 self.vel_y *= -1
@@ -148,7 +163,7 @@ class Ball(pg.sprite.Sprite):
             if self.rect.right > WIDTH:
                 self.rect.right = WIDTH
                 self.vel_x *= -1
-                
+
 
             if self.vel_y >=0:
                 self.vel_y = self.vel_y + .5
@@ -165,6 +180,10 @@ class Ball(pg.sprite.Sprite):
                 self.vel_x = max(self.vel_x - .005, 0)
             elif self.vel_x < 0:
                 self.vel_x = min(self.vel_x + .005, 0)
+
+
+
+
 
             self.rect.x += self.vel_x
             self.rect.y += self.vel_y
@@ -234,6 +253,7 @@ class Player(pg.sprite.Sprite):
             self.rect.top = 0
             self.vel_y = 0
 
+        
 def start():
     """Environment Setup and Game Loop"""
     pg.init()
@@ -255,14 +275,23 @@ def start():
     player_sprites.add(player)
     player_sprites.add(player2)
     
-    rim1 = Rim(80, rim_sprites)
-    rim2 = Rim(1200, rim_sprites)
+    rim1 = Rim(75, rim_sprites)
+    rim2 = Rim(1205, rim_sprites)
     ball = Ball(player_sprites)
+    back1 = Back(75, all_sprites)
+    back2 = Back(1205, all_sprites)
+
+
+
     all_sprites.add(player)
     all_sprites.add(player2)
+    all_sprites.add(back1)
+    all_sprites.add(back2)
     all_sprites.add(ball)
     all_sprites.add(rim1)
-    all_sprites.add(rim2)
+    all_sprites.add(rim2)    
+
+ 
     pg.display.set_caption("GAME")
 
     # --Main Loop--
