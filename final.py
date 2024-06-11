@@ -61,8 +61,9 @@ class Ball(pg.sprite.Sprite):
 
 
         self.player_sprites = players
-        self.rim_sprites= rims
+        self.rim_sprites = rims
         self.hold = None
+        self.basket= None
         self.dribble = False
         self.vertical_direction = 1
 
@@ -70,15 +71,25 @@ class Ball(pg.sprite.Sprite):
         self.cooldownfail = pg.time.get_ticks()
 
         self.shotloaded = False
-        
+        self.reshot = False
     def update(self):
         """ Move ball """
         collided = pg.sprite.spritecollide(self, self.player_sprites, False)
+        scored = pg.sprite.spritecollide(self, self.rim_sprites, False )
 
-        if collided: 
+        # if self.hold.rect.bottom == HEIGHT:
+        #     self.reshot = True
+
+        if collided and not self.reshot: 
             self.hold = collided[0]
             
+        if scored:
+            self.basket = scored[0]
+            
+        if self.basket:
+            print("basket contacted")
         # else:
+        
         #     timenow = pg.time.get_ticks()
         #     if timenow - self.cooldownfail> self.cooldown:
         #         self.hold = None
@@ -109,12 +120,14 @@ class Ball(pg.sprite.Sprite):
             if self.hold.rect.bottom > 600 and self.hold.vel_y > 0 and self.shotloaded:
                 if self.hold.initial == 100:
                     self.hold = None
+                    self.reshot = True
                     self.vel_x = 10
                     self.vel_y =-15
 
                     
                 elif self.hold.initial == 1180:
                     self.hold = None
+                    self.reshot = True
                     self.vel_x = -10
                     self.vel_y = -15
 
@@ -134,11 +147,14 @@ class Ball(pg.sprite.Sprite):
                     if self.shotloaded:
                         if self.hold.initial == 100:
                             self.hold = None
+                            self.reshot = True
                             self.vel_x = 10
                             self.vel_y =-15
+                            
 
                         elif self.hold.initial == 1180:
                             self.hold = None
+                            self.reshot = True
                             self.vel_x = -10
                             self.vel_y = -15
                         
@@ -277,10 +293,13 @@ def start():
     
     rim1 = Rim(75, rim_sprites)
     rim2 = Rim(1205, rim_sprites)
-    ball = Ball(player_sprites)
+    rim_sprites.add(rim1)
+    rim_sprites.add(rim2)
+
+
+    ball = Ball(player_sprites, rim_sprites)
     back1 = Back(75, all_sprites)
     back2 = Back(1205, all_sprites)
-
 
 
     all_sprites.add(player)
