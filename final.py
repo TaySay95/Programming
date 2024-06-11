@@ -80,14 +80,16 @@ class Ball(pg.sprite.Sprite):
         # if self.hold.rect.bottom == HEIGHT:
         #     self.reshot = True
 
-        if collided and not self.reshot: 
+        if collided and self.reshot == False:
             self.hold = collided[0]
+            print(collided)
+
             
+
+        
         if scored:
             self.basket = scored[0]
-            
-        if self.basket:
-            print("basket contacted")
+
         # else:
         
         #     timenow = pg.time.get_ticks()
@@ -98,8 +100,15 @@ class Ball(pg.sprite.Sprite):
             self.shotloaded = True
         if not self.hold:
             self.shotloaded = False
+
+        if self.rect.bottom >= HEIGHT:
+            self.reshot = False
+            print('here')
     
         if self.hold:
+            # if self.rect.bottom == HEIGHT:
+            #     self.reshot = False
+            #     print('here')
             if self.hold.rect.bottom == HEIGHT:
                 if self.hold.vel_x>0:
                     self.rect.left = self.hold.rect.right -15
@@ -120,18 +129,20 @@ class Ball(pg.sprite.Sprite):
             if self.hold.rect.bottom > 600 and self.hold.vel_y > 0 and self.shotloaded:
                 if self.hold.initial == 100:
                     self.hold = None
-                    self.reshot = True
+                    # self.reshot = True
                     self.vel_x = 10
                     self.vel_y =-15
 
                     
                 elif self.hold.initial == 1180:
                     self.hold = None
-                    self.reshot = True
+                    # self.reshot = True
                     self.vel_x = -10
                     self.vel_y = -15
 
-                    
+            if self.hold.rect.bottom == HEIGHT and not pressed[self.hold.input["up"]] and self.shotloaded:
+                self.reshot = True
+    
             elif (self.hold.rect.bottom < HEIGHT and pressed[self.hold.input["up"]]) or (self.hold.rect.bottom < HEIGHT and not self.shotloaded):
 
                     self.rect.bottom = self.hold.rect.top + 23
@@ -141,32 +152,27 @@ class Ball(pg.sprite.Sprite):
                     if self.hold.initial == 1180:
                         self.rect.right = self.hold.rect.left +35
             
+
+
             else:
                 # timenow = pg.time.get_ticks()
                 # if timenow - self.cooldownfail >self.cooldown:
                     if self.shotloaded:
                         if self.hold.initial == 100:
                             self.hold = None
-                            self.reshot = True
                             self.vel_x = 10
                             self.vel_y =-15
                             
 
                         elif self.hold.initial == 1180:
                             self.hold = None
-                            self.reshot = True
                             self.vel_x = -10
                             self.vel_y = -15
                         
+
+
     
         else:
-            # rimhit = pg.sprite.spritecollide(self, self.rim_sprites, False)
-            # if rimhit:
-            #     self.hit = rimhit[0]
-            # if self.hit.rect.bottom == self.rect.top and self.vel_y >0:
-            #     self.vel_y *= self.vel_y *-1
-
-
             if self.rect.top < 0:
                 self.rect.top = 0 
                 self.vel_y *= -1
@@ -203,6 +209,10 @@ class Ball(pg.sprite.Sprite):
 
             self.rect.x += self.vel_x
             self.rect.y += self.vel_y
+        
+        # if self.vel_y > 0 and self.hold and self.reshot:
+        #     self.reshot = False
+        #     self.hold = None
 
 
 
