@@ -15,8 +15,8 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 GRAY = (128, 128, 128)
-ORANGE = (255, 127, 80)
-
+ORANGE = (245, 93, 5)
+GREEN = (0, 163, 69)
 WIDTH = 1280
 HEIGHT = 720
 SCREEN_SIZE = (WIDTH, HEIGHT)
@@ -27,8 +27,7 @@ RIMIMAGE = pg.image.load("./Images/frontnet.png")
 RIM = pg.transform.scale(RIMIMAGE, (RIMIMAGE.get_width() // 3, RIMIMAGE.get_height() // 3))
 BACKRIM = pg.image.load("./Images/backnet.png")
 BACK = pg.transform.scale(BACKRIM, (BACKRIM.get_width() // 3, BACKRIM.get_height() // 3))
-
-
+BACKGROUND = pg.image.load("./Images/gymbackground.png")
 # CREATE RIM CLASS
 class Rim(pg.sprite.Sprite):
     def __init__(self, x, rim:pg.sprite.Group = None):
@@ -41,6 +40,7 @@ class Rim(pg.sprite.Sprite):
         # Rim location
         self.rect.centerx = x
         self.rect.y = 210
+        self.ground = 680
 
 class Back(pg.sprite.Sprite):
     def __init__(self,x, back:pg.sprite.Group = None):
@@ -105,20 +105,27 @@ class Ball(pg.sprite.Sprite):
         
         
         # If the ball is being held by a player and also hits the rim, make player drop ball
-        if self.basket and self.hold:
-            self.hold = None
-            self.reshot = True
-            self.vel_x = 0
-            self.vel_y = 0.8
+        if self.basket:
+            if self.hold:
+                self.hold = None
+                self.reshot = True
+                self.vel_x = 0
+                self.vel_y = 0.8
             
-        elif self.basket and self.vel_y < 0 and self.rect.top < self.basket.rect.bottom:
-            self.vel_y = self.vel_y *-0.5
-            
-        elif self.basket and self.vel_x < 0 and self.rect.left < self.basket.rect.right:
-            self.vel_x *= -1
-            
-        elif self.basket and self.vel_x > 0 and self.rect.right > self.basket.rect.left:
-            self.vel_x *= -1
+
+            elif self.vel_y > 0 and self.rect.bottom > self.basket.rect.centery and (self.rect.right < 141 or self.rect.left > 1139) :
+                    self.vel_x = 0
+                    self.rect.centerx = self.basket.rect.centerx
+                    self.vel_y = min(self.vel_y - .0005, 2)
+                
+            # elif self.vel_y < 0 and self.rect.top < self.basket.rect.bottom:
+            #     self.vel_y = self.vel_y *-0.5
+                
+            elif self.vel_x < 0 and self.rect.left < self.basket.rect.right:
+                self.vel_x *= -1
+                
+            elif self.vel_x > 0 and self.rect.right > self.basket.rect.left:
+                self.vel_x *= -1
         
 
         
@@ -134,7 +141,7 @@ class Ball(pg.sprite.Sprite):
 
         # Player has to touch the ground with the ball for shot to be loaded
         # Once ball is no longer being held, shot is unloaded
-        if self.hold and self.hold.rect.bottom == HEIGHT:
+        if self.hold and self.hold.rect.bottom == 680:
             self.shotloaded = True
         if not self.hold:
             self.shotloaded = False
@@ -146,7 +153,7 @@ class Ball(pg.sprite.Sprite):
         # If ball and player collide
         if self.hold:
             # Make ball follow player if on ground
-            if self.hold.rect.bottom == HEIGHT:
+            if self.hold.rect.bottom == 680:
                  # follow on right side of player if player is moving right, left side if player moving left
                 if self.hold.vel_x>0:
                     self.rect.left = self.hold.rect.right -15
@@ -160,9 +167,9 @@ class Ball(pg.sprite.Sprite):
                         self.rect.right = self.hold.rect.left +15
                         
                 # Make player dribble ball if on ground
-                if self.rect.y <= 630:
+                if self.rect.y <= 590:
                     self.vertical_direction = 1
-                elif self.rect.y >= 670:
+                elif self.rect.y >= 630:
                     self.vertical_direction = -1
                 self.rect.y += 4 * self.vertical_direction
                
@@ -172,21 +179,21 @@ class Ball(pg.sprite.Sprite):
             if self.hold.rect.bottom > 650 and self.hold.vel_y > 0 and self.shotloaded:
                 if self.hold.initial == 100:
                     self.hold = None
-                    self.vel_x = 10
-                    self.vel_y =-15
+                    self.vel_x = 7
+                    self.vel_y =-18
                 elif self.hold.initial == 1180:
                     self.hold = None
-                    self.vel_x = -10
-                    self.vel_y = -15
+                    self.vel_x = -7
+                    self.vel_y = -18
             
 
             # Set reshot to True if they shoot 
-            elif self.hold.rect.bottom == HEIGHT and not pressed[self.hold.input["up"]] and self.shotloaded:
+            elif self.hold.rect.bottom == 680 and not pressed[self.hold.input["up"]] and self.shotloaded:
                 self.reshot = True
 
             
             # Any instance player is in air, position ball in shooting position
-            elif (self.hold.rect.bottom < HEIGHT and pressed[self.hold.input["up"]]) or (self.hold.rect.bottom < HEIGHT and not self.shotloaded):
+            elif (self.hold.rect.bottom < 680 and pressed[self.hold.input["up"]]) or (self.hold.rect.bottom < 680 and not self.shotloaded):
                     self.rect.bottom = self.hold.rect.top + 23
                     if self.hold.initial == 100:
                         self.rect.left = self.hold.rect.right -35
@@ -198,22 +205,19 @@ class Ball(pg.sprite.Sprite):
                     if self.shotloaded:
                         if self.hold.initial == 100:
                             self.hold = None
-                            self.vel_x = 10
-                            self.vel_y =-15
+                            self.vel_x = 7
+                            self.vel_y =-18
                             
                         elif self.hold.initial == 1180:
                             self.hold = None
-                            self.vel_x = -10
-                            self.vel_y = -15
+                            self.vel_x = -7
+                            self.vel_y = -18
                             
         # Set ball physics when not being affected by other sprites
         else:
             # Keep in the borders
-            if self.rect.top < 0:
-                self.rect.top = 0 
-                self.vel_y *= -1
-            if self.rect.bottom > HEIGHT:
-                self.rect.bottom = HEIGHT
+            if self.rect.bottom > 680:
+                self.rect.bottom = 680
                 self.vel_y *= -1
             if self.rect.left < 0:
                 self.rect.left = 0
@@ -229,7 +233,7 @@ class Ball(pg.sprite.Sprite):
                 self.vel_y = self.vel_y + .65
                 
             # Stop ball from having lots of very small bounces
-            if -0.5<self.vel_y<0.5 and self.rect.bottom == HEIGHT:
+            if -0.5<self.vel_y<0.5 and self.rect.bottom >= 680:
                 self.vel_y *=0
 
             # Horizontal friction/deceleration
@@ -294,7 +298,7 @@ class Player(pg.sprite.Sprite):
 
         # Vertical movement
         # If up input pressed and player is going up set y velocity to make player jump, limit max height when player can input jump
-        if pressed[self.input["up"]] and self.rect.bottom > 570 and self.vel_y<=0:
+        if pressed[self.input["up"]] and self.rect.bottom > 530 and self.vel_y<=0:
             self.vel_y = -16
             
         # Gravity
@@ -312,8 +316,8 @@ class Player(pg.sprite.Sprite):
         if self.rect.left < 0:
             self.rect.left = 0
             self.vel_x = 0
-        if self.rect.bottom > HEIGHT:
-            self.rect.bottom = HEIGHT
+        if self.rect.bottom > 680:
+            self.rect.bottom = 680
             self.vel_y = 0
         if self.rect.top < 0:
             self.rect.top = 0
@@ -337,7 +341,7 @@ def start():
     
     # Create Player sprite objects
     player = Player(BLUE, {'left': pg.K_LEFT, 'right': pg.K_RIGHT, 'up': pg.K_UP, 'down': pg.K_DOWN}, 1180, 720,)
-    player2 = Player(RED, {'left': pg.K_a, 'right': pg.K_d, 'up': pg.K_w, 'down': pg.K_s}, 100, 720,)
+    player2 = Player(GREEN, {'left': pg.K_a, 'right': pg.K_d, 'up': pg.K_w, 'down': pg.K_s}, 100, 720,)
     player_sprites.add(player)
     player_sprites.add(player2)
 
@@ -374,8 +378,9 @@ def start():
         all_sprites.update()
 
         # --- Draw items
-        screen.fill(BLACK)
+        screen.blit(BACKGROUND, (0,0))
         all_sprites.draw(screen)
+
     
         # Update the screen with anything new
         pg.display.flip()
