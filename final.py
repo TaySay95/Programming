@@ -97,28 +97,40 @@ class Ball(pg.sprite.Sprite):
         if collided and self.reshot == False:
             self.hold = collided[0]  
 
-        #
+        # When is the ball contacted with the rim
         if scored:
             self.basket = scored[0]
         elif not scored:
             self.basket = None
         
-        if self.basket:
-            if self.hold:
-                self.hold = None
-                self.vel_y = 0
-            if self.vel_y < 0 and (self.rect.centery < self.basket.rect.bottom):
-                    self.vel_y *= -1
-                    print('reversed')
-
+        
+        # If the ball is being held by a player and also hits the rim, make player drop ball
+        if self.basket and self.hold:
+            self.hold = None
+            self.reshot = True
+            self.vel_x = 0
+            self.vel_y = 0.8
             
-            if self.basket and not self.hold and self.vel_y > 0 and self.rect.bottom > self.basket.rect.top:
-                    self.vel_x = 0
-                    self.vel_y += -.6
+        elif self.basket and self.vel_y < 0 and self.rect.top < self.basket.rect.bottom:
+            self.vel_y = self.vel_y *-0.5
+            
+        elif self.basket and self.vel_x < 0 and self.rect.left < self.basket.rect.right:
+            self.vel_x *= -1
+            
+        elif self.basket and self.vel_x > 0 and self.rect.right > self.basket.rect.left:
+            self.vel_x *= -1
         
 
-                    
+        
+        
+        # elif self.basket and self.vel_y >0 and self.rect.top > self.basket.rect.top:
+        #     self.vel_x = 0
+        #     self.vel_y = 2
 
+
+        
+
+            
 
         # Player has to touch the ground with the ball for shot to be loaded
         # Once ball is no longer being held, shot is unloaded
@@ -130,7 +142,7 @@ class Ball(pg.sprite.Sprite):
         # Once ball is no longer contacted by player, set reshot to False
         if not collided:
             self.reshot = False
-    
+            
         # If ball and player collide
         if self.hold:
             # Make ball follow player if on ground
