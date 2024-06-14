@@ -112,21 +112,32 @@ class Ball(pg.sprite.Sprite):
                 self.vel_x = 0
                 self.vel_y = 0.8
             
+  
+            elif self.vel_x < 0 and self.rect.left < self.basket.rect.right:
+                self.rect.left = self.basket.rect.right
+                self.vel_x *= -1
+            elif self.vel_x > 0 and  self.rect.right > self.basket.rect.left:
+                self.rect.right = self.basket.rect.left
+                self.vel_x *= -1
+            
+            elif self.vel_y < 0 and self.rect.top<self.basket.rect.bottom:
+                self.vel_y = self.vel_y *-1 -5  
 
-            elif self.vel_y > 0 and self.rect.bottom > self.basket.rect.centery and (self.rect.right < 141 or self.rect.left > 1139) :
-                    self.vel_x = 0
-                    self.rect.centerx = self.basket.rect.centerx
-                    self.vel_y = min(self.vel_y - .0005, 2)
+
+            # elif self.vel_x < 0 and self.rect.left < self.basket.rect.right and self.rect.bottom > self.basket.rect.top and self.rect.top < self.basket.rect.bottom:
+            #     self.vel_x *= -1
+                
+            # elif self.vel_x > 0 and self.rect.right > self.basket.rect.left and self.rect.bottom > self.basket.rect.top and self.rect.top < self.basket.rect.bottom:
+            #     self.vel_x *= -1
+
+            # elif self.vel_y > 0 and self.rect.bottom > self.basket.rect.centery and self.rect.bottom< self.basket.rect.bottom and (self.rect.right < 141 or self.rect.left > 1139) :
+            #         self.vel_x = 0
+            #         self.rect.centerx = self.basket.rect.centerx
+            #         self.vel_y = min(self.vel_y - .0005, 2)
                 
             # elif self.vel_y < 0 and self.rect.top < self.basket.rect.bottom:
             #     self.vel_y = self.vel_y *-0.5
-                
-            elif self.vel_x < 0 and self.rect.left < self.basket.rect.right:
-                self.vel_x *= -1
-                
-            elif self.vel_x > 0 and self.rect.right > self.basket.rect.left:
-                self.vel_x *= -1
-        
+
 
         
         
@@ -152,6 +163,7 @@ class Ball(pg.sprite.Sprite):
             
         # If ball and player collide
         if self.hold:
+            
             # Make ball follow player if on ground
             if self.hold.rect.bottom == 680:
                  # follow on right side of player if player is moving right, left side if player moving left
@@ -199,7 +211,7 @@ class Ball(pg.sprite.Sprite):
                         self.rect.left = self.hold.rect.right -35
                     if self.hold.initial == 1180:
                         self.rect.right = self.hold.rect.left +35
-                        
+      
             # If they are in air with shot loaded, and up input is no longer pressed, shoot ball
             else:
                     if self.shotloaded:
@@ -245,7 +257,8 @@ class Ball(pg.sprite.Sprite):
                 self.vel_x = max(self.vel_x - .005, 0)
             elif self.vel_x < 0:
                 self.vel_x = min(self.vel_x + .005, 0)
-                
+            
+            
             # Ball follows velocity
             self.rect.x += self.vel_x
             self.rect.y += self.vel_y
