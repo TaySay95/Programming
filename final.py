@@ -422,9 +422,13 @@ def start():
         # --- Draw items
         screen.blit(BACKGROUND, (0,0))
         all_sprites.draw(screen)
-        score=font.render(f"{ball.scorea} : {ball.scoreb}", True, RED)
-        screen.blit(score, (WIDTH//2 - score.get_width()//2, 85))
-
+        colon=font.render(f":", True, WHITE)
+        scorea = font.render(f"{ball.scorea}", True, GREEN)
+        scoreb = font.render(f"{ball.scoreb}", True, BLUE)
+        screen.blit(colon, ((WIDTH//2 -15), 85))
+        screen.blit(scorea, ((WIDTH//2 -115), 85))
+        screen.blit(scoreb, ((WIDTH//2 +85), 85))
+        
         # Update the screen with anything new
         pg.display.flip()
 
