@@ -13,7 +13,7 @@ BLACK = (0, 0, 0)
 EMERALD = (21, 219, 147)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
-BLUE = (0, 0, 255)
+BLUE = (0, 100, 177)
 GRAY = (128, 128, 128)
 ORANGE = (245, 93, 5)
 GREEN = (0, 163, 69)
@@ -77,6 +77,9 @@ class Ball(pg.sprite.Sprite):
         self.vertical_direction = 1
         self.scorea = 0
         self.scoreb = 0
+        self.count = False
+        self.net = False
+        self.net2 = False
         
         # If player has ball, jumps and does not release ball, ball will auto release just prior to player lands on ground
         # However, if player catches the ball while already in air, disable auto release. Define when shot is loaded or not
@@ -86,6 +89,7 @@ class Ball(pg.sprite.Sprite):
         # Say when player is colliding with the ball after picking it up, or if they are colliding with ball because they just shot it
         self.reshot = False
         
+
     def update(self):
         # Move ball
         
@@ -105,6 +109,20 @@ class Ball(pg.sprite.Sprite):
         elif not scored:
             self.basket = None
         
+
+        
+        if self.rect.right<=140 and self.rect.bottom<= 200 or self.rect.left>= 1130 and self.rect.bottom<=200:
+            self.count = True
+            self.net = True
+            self.net2 = True
+        if self.rect.left> 140 and self.rect.right<1130:
+            self.count = False
+        if self.rect.top>300:
+            self.net2= False
+
+
+        if self.net2 == False:
+            self.net =False
         
         
         if self.basket:
@@ -115,11 +133,13 @@ class Ball(pg.sprite.Sprite):
                 self.vel_x = 0
                 self.vel_y = 0.8
 
+        
+
 
             if self.basket.rect.centerx ==1205:
                 if self.vel_y >0 and self.basket.rect.top +15>self.rect.bottom:
                     if self.rect.right > 1265 or (self.rect.left<self.basket.rect.left):
-                        self.rect.bottom = self.rect.top-1
+                        # self.rect.bottom = self.rect.top # if clipping happens, comment this out
                         self.vel_y *= -1                
                 
                 if self.vel_x > 0 and self.rect.right > self.basket.rect.left and self.rect.centerx < self.basket.rect.left and self.rect.top <self.basket.rect.top + 16 and self.rect.bottom > self.basket.rect.top + 16:
@@ -130,11 +150,14 @@ class Ball(pg.sprite.Sprite):
                     self.rect.top = self.basket.rect.top +20
                     self.vel_y *= -1
                     
-                elif self.vel_y > 0 and self.rect.top> self.basket.rect.top:
+                elif self.vel_y > 0 and self.rect.top> self.basket.rect.top and self.net == True:
                     self.rect.centerx= self.basket.rect.centerx
                     self.vel_x=0
+
                     self.vel_y = max(self.vel_y /1.2, 1.3)
-                    self.scorea += 1
+                    if self.count == True:
+                        self.scorea += 1
+                        self.count = False
                 
                 
             elif self.basket.rect.centerx ==75:
@@ -151,27 +174,15 @@ class Ball(pg.sprite.Sprite):
                     self.rect.top = self.basket.rect.top +20
                     self.vel_y *= -1
                     
-                elif self.vel_y > 0 and self.rect.top> self.basket.rect.top:
+                elif self.vel_y > 0 and self.rect.top> self.basket.rect.top and self.net == True:
                     self.rect.centerx= self.basket.rect.centerx
                     self.vel_x=0
                     self.vel_y = max(self.vel_y /1.2, 1.3)
-                    self.scoreb += 1
+                    if self.count == True:
+                        self.scoreb += 1
+                        self.count = False
 
 
-            # elif self.vel_y > 0 and self.rect.bottom > self.basket.rect.centery and self.rect.bottom< self.basket.rect.bottom and (self.rect.right < 141 or self.rect.left > 1139) :
-            #         self.vel_x = 0
-            #         self.rect.centerx = self.basket.rect.centerx
-            #         self.vel_y = min(self.vel_y - .0005, 2)
-                
-            # elif self.vel_y < 0 and self.rect.top < self.basket.rect.bottom:
-            #     self.vel_y = self.vel_y *-0.5
-
-
-        
-        
-        # elif self.basket and self.vel_y >0 and self.rect.top > self.basket.rect.top:
-        #     self.vel_x = 0
-        #     self.vel_y = 2
 
 
         
@@ -373,7 +384,7 @@ def start():
     screen = pg.display.set_mode(SCREEN_SIZE)
     done = False
     clock = pg.time.Clock()
-    font = pg.font.SysFont("Futura", 90)
+    font = pg.font.SysFont("Futura", 30)
 
     # All sprites go in this sprite Group
     all_sprites = pg.sprite.Group()
@@ -422,13 +433,14 @@ def start():
         # --- Draw items
         screen.blit(BACKGROUND, (0,0))
         all_sprites.draw(screen)
-        colon=font.render(f":", True, WHITE)
-        scorea = font.render(f"{ball.scorea}", True, GREEN)
-        scoreb = font.render(f"{ball.scoreb}", True, BLUE)
-        screen.blit(colon, ((WIDTH//2 -15), 85))
-        screen.blit(scorea, ((WIDTH//2 -115), 85))
-        screen.blit(scoreb, ((WIDTH//2 +85), 85))
-        
+        # colon=font.render(f":", True, WHITE)
+        scorea = font.render(f"PLAYER 1: {ball.scorea}", True, GREEN)
+        scoreb = font.render(f"PLAYER 2: {ball.scoreb}", True, BLUE)
+        dot = font.render (".", True, WHITE)
+        # screen.blit(colon, ((WIDTH//2 -15), 55))
+        screen.blit(scorea, ((WIDTH// 2 -235), 30))
+        screen.blit(scoreb, ((WIDTH//2 +45), 30))
+        screen.blit(dot, (1130,300))
         # Update the screen with anything new
         pg.display.flip()
 
