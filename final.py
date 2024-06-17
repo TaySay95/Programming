@@ -104,31 +104,62 @@ class Ball(pg.sprite.Sprite):
             self.basket = None
         
         
-        # If the ball is being held by a player and also hits the rim, make player drop ball
+        
         if self.basket:
+            # If the ball is being held by a player and also hits the rim, make player drop ball
             if self.hold:
                 self.hold = None
                 self.reshot = True
                 self.vel_x = 0
                 self.vel_y = 0.8
-            
-  
-            elif self.vel_x < 0 and self.rect.left < self.basket.rect.right:
-                self.rect.left = self.basket.rect.right
-                self.vel_x *= -1
-            elif self.vel_x > 0 and  self.rect.right > self.basket.rect.left:
-                self.rect.right = self.basket.rect.left
-                self.vel_x *= -1
-            
-            elif self.vel_y < 0 and self.rect.top<self.basket.rect.bottom:
-                self.vel_y = self.vel_y *-1 -5  
 
 
-            # elif self.vel_x < 0 and self.rect.left < self.basket.rect.right and self.rect.bottom > self.basket.rect.top and self.rect.top < self.basket.rect.bottom:
-            #     self.vel_x *= -1
+            if self.basket.rect.centerx ==1205:
+                if self.vel_y >0 and self.basket.rect.top +15>self.rect.bottom:
+                    if self.rect.right > 1265 or (self.rect.left<self.basket.rect.left):
+                        self.rect.bottom = self.rect.top-1
+                        self.vel_y *= -1                
                 
-            # elif self.vel_x > 0 and self.rect.right > self.basket.rect.left and self.rect.bottom > self.basket.rect.top and self.rect.top < self.basket.rect.bottom:
-            #     self.vel_x *= -1
+                if self.vel_x > 0 and self.rect.right > self.basket.rect.left and self.rect.centerx < self.basket.rect.left and self.rect.top <self.basket.rect.top + 16 and self.rect.bottom > self.basket.rect.top + 16:
+                    self.rect.right = self.basket.rect.left
+                    self.vel_x *= -1
+                    
+                if self.vel_y < 0 and self.basket.rect.top <self.rect.top < self.basket.rect.top + 20:
+                    self.rect.top = self.basket.rect.top +20
+                    self.vel_y *= -1
+                    
+                elif self.vel_y > 0 and self.rect.top> self.basket.rect.top:
+                    self.rect.centerx= self.basket.rect.centerx
+                    self.vel_x=0
+                    self.vel_y = max(self.vel_y /1.2, 1.3)
+                
+                
+            elif self.basket.rect.centerx ==75:
+                if self.vel_y> 0 and self.basket.rect.top + 15 >self.rect.bottom:
+                    if self.rect.left < 15 or (self.rect.right> self.basket.rect.right):
+                        self.rect.bottom = self.basket.rect.top
+                        self.vel_y *= -1
+            
+                if self.vel_x < 0 and self.rect.left < self.basket.rect.right and self.rect.centerx > self.basket.rect.right and self.rect.top <self.basket.rect.top + 16 and self.rect.bottom > self.basket.rect.top + 16:
+                    self.rect.left = self.basket.rect.right
+                    self.vel_x *= -1
+
+                if self.vel_y < 0 and self.basket.rect.top <self.rect.top < self.basket.rect.top + 20:
+                    self.rect.top = self.basket.rect.top +20
+                    self.vel_y *= -1
+                    
+                elif self.vel_y > 0 and self.rect.top> self.basket.rect.top:
+                    self.rect.centerx= self.basket.rect.centerx
+                    self.vel_x=0
+                    self.vel_y = max(self.vel_y /1.2, 1.3)
+
+                
+            
+            
+
+
+
+
 
             # elif self.vel_y > 0 and self.rect.bottom > self.basket.rect.centery and self.rect.bottom< self.basket.rect.bottom and (self.rect.right < 141 or self.rect.left > 1139) :
             #         self.vel_x = 0
