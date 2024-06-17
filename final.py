@@ -75,6 +75,8 @@ class Ball(pg.sprite.Sprite):
         self.basket= None
         self.dribble = False
         self.vertical_direction = 1
+        self.scorea = 0
+        self.scoreb = 0
         
         # If player has ball, jumps and does not release ball, ball will auto release just prior to player lands on ground
         # However, if player catches the ball while already in air, disable auto release. Define when shot is loaded or not
@@ -132,6 +134,7 @@ class Ball(pg.sprite.Sprite):
                     self.rect.centerx= self.basket.rect.centerx
                     self.vel_x=0
                     self.vel_y = max(self.vel_y /1.2, 1.3)
+                    self.scorea += 1
                 
                 
             elif self.basket.rect.centerx ==75:
@@ -152,13 +155,7 @@ class Ball(pg.sprite.Sprite):
                     self.rect.centerx= self.basket.rect.centerx
                     self.vel_x=0
                     self.vel_y = max(self.vel_y /1.2, 1.3)
-
-                
-            
-            
-
-
-
+                    self.scoreb += 1
 
 
             # elif self.vel_y > 0 and self.rect.bottom > self.basket.rect.centery and self.rect.bottom< self.basket.rect.bottom and (self.rect.right < 141 or self.rect.left > 1139) :
@@ -376,6 +373,7 @@ def start():
     screen = pg.display.set_mode(SCREEN_SIZE)
     done = False
     clock = pg.time.Clock()
+    font = pg.font.SysFont("Futura", 90)
 
     # All sprites go in this sprite Group
     all_sprites = pg.sprite.Group()
@@ -424,8 +422,9 @@ def start():
         # --- Draw items
         screen.blit(BACKGROUND, (0,0))
         all_sprites.draw(screen)
+        score=font.render(f"{ball.scorea} : {ball.scoreb}", True, RED)
+        screen.blit(score, (WIDTH//2 - score.get_width()//2, 85))
 
-    
         # Update the screen with anything new
         pg.display.flip()
 
