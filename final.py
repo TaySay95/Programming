@@ -80,6 +80,8 @@ class Ball(pg.sprite.Sprite):
         self.count = False
         self.net = False
         self.net2 = False
+        self.shotx = 10
+        self.shoty = -16
         
         # If player has ball, jumps and does not release ball, ball will auto release just prior to player lands on ground
         # However, if player catches the ball while already in air, disable auto release. Define when shot is loaded or not
@@ -111,7 +113,7 @@ class Ball(pg.sprite.Sprite):
         
 
         
-        if self.rect.right<=140 and self.rect.bottom<= 200 or self.rect.left>= 1130 and self.rect.bottom<=200:
+        if self.rect.left<=140 and self.rect.bottom<= 210 or self.rect.right>= 1130 and self.rect.bottom<=210:
             self.count = True
             self.net = True
             self.net2 = True
@@ -153,7 +155,6 @@ class Ball(pg.sprite.Sprite):
                 elif self.vel_y > 0 and self.rect.top> self.basket.rect.top and self.net == True:
                     self.rect.centerx= self.basket.rect.centerx
                     self.vel_x=0
-
                     self.vel_y = max(self.vel_y /1.2, 1.3)
                     if self.count == True:
                         self.scorea += 1
@@ -180,14 +181,7 @@ class Ball(pg.sprite.Sprite):
                     self.vel_y = max(self.vel_y /1.2, 1.3)
                     if self.count == True:
                         self.scoreb += 1
-                        self.count = False
-
-
-
-
-        
-
-            
+                        self.count = False            
 
         # Player has to touch the ground with the ball for shot to be loaded
         # Once ball is no longer being held, shot is unloaded
@@ -200,8 +194,16 @@ class Ball(pg.sprite.Sprite):
         if not collided:
             self.reshot = False
             
+        if self.hold:
+            for player in self.player_sprites:
+                if self.hold is player:
+                    player.shooting = 1
+                else:
+                    player.shooting = 0
+
         # If ball and player collide
         if self.hold:
+
             
             # Make ball follow player if on ground
             if self.hold.rect.bottom == 680:
@@ -230,12 +232,12 @@ class Ball(pg.sprite.Sprite):
             if self.hold.rect.bottom > 650 and self.hold.vel_y > 0 and self.shotloaded:
                 if self.hold.initial == 100:
                     self.hold = None
-                    self.vel_x = 7
-                    self.vel_y =-18
+                    self.vel_x = self.shotx
+                    self.vel_y = self.shoty
                 elif self.hold.initial == 1180:
                     self.hold = None
-                    self.vel_x = -7
-                    self.vel_y = -18
+                    self.vel_x = -self.shotx
+                    self.vel_y = self.shoty
             
 
             # Set reshot to True if they shoot 
@@ -256,13 +258,13 @@ class Ball(pg.sprite.Sprite):
                     if self.shotloaded:
                         if self.hold.initial == 100:
                             self.hold = None
-                            self.vel_x = 7
-                            self.vel_y =-18
+                            self.vel_x = self.shotx
+                            self.vel_y = self.shoty
                             
                         elif self.hold.initial == 1180:
                             self.hold = None
-                            self.vel_x = -7
-                            self.vel_y = -18
+                            self.vel_x = -self.shotx
+                            self.vel_y = self.shoty
                             
         # Set ball physics when not being affected by other sprites
         else:
@@ -303,7 +305,6 @@ class Ball(pg.sprite.Sprite):
             self.rect.y += self.vel_y
 
 
-
 class Player(pg.sprite.Sprite):
     def __init__(self, color, input, x, y):
         super().__init__()
@@ -320,9 +321,9 @@ class Player(pg.sprite.Sprite):
         self.rect.centery = y
         self.vel_x = 0
         self.vel_y = 0
-        
         # Refer on up, down, left, right inputs
         self.input = input
+        self.shooting = 0
 
     def update(self):
         # Move player
@@ -349,10 +350,14 @@ class Player(pg.sprite.Sprite):
                 self.vel_x = min(self.vel_x + 1, 0)
 
         # Vertical movement
-        # If up input pressed and player is going up set y velocity to make player jump, limit max height when player can input jump
-        if pressed[self.input["up"]] and self.rect.bottom > 530 and self.vel_y<=0:
+        # If up input pressed and player is going up set y velocity to make player jump, limit max height when player can input jump        
+        if pressed[self.input["up"]] and self.vel_y<=0 and self.rect.bottom > 550 and self.shooting ==1:
             self.vel_y = -16
+        elif pressed[self.input["up"]] and self.vel_y<=0 and self.rect.bottom > 450 and self.shooting ==0:
+            self.vel_y = -16
+
             
+    
         # Gravity
         else:
             self.vel_y = self.vel_y + .7
@@ -393,8 +398,8 @@ def start():
     
     
     # Create Player sprite objects
-    player = Player(BLUE, {'left': pg.K_LEFT, 'right': pg.K_RIGHT, 'up': pg.K_UP, 'down': pg.K_DOWN}, 1180, 720,)
-    player2 = Player(GREEN, {'left': pg.K_a, 'right': pg.K_d, 'up': pg.K_w, 'down': pg.K_s}, 100, 720,)
+    player = Player(BLUE, {'left': pg.K_LEFT, 'right': pg.K_RIGHT, 'up': pg.K_UP, 'down': pg.K_DOWN}, 1180, 720)
+    player2 = Player(GREEN, {'left': pg.K_a, 'right': pg.K_d, 'up': pg.K_w, 'down': pg.K_s}, 100, 720)
     player_sprites.add(player)
     player_sprites.add(player2)
 
@@ -433,14 +438,13 @@ def start():
         # --- Draw items
         screen.blit(BACKGROUND, (0,0))
         all_sprites.draw(screen)
-        # colon=font.render(f":", True, WHITE)
+
         scorea = font.render(f"PLAYER 1: {ball.scorea}", True, GREEN)
         scoreb = font.render(f"PLAYER 2: {ball.scoreb}", True, BLUE)
-        dot = font.render (".", True, WHITE)
-        # screen.blit(colon, ((WIDTH//2 -15), 55))
+
         screen.blit(scorea, ((WIDTH// 2 -235), 30))
         screen.blit(scoreb, ((WIDTH//2 +45), 30))
-        screen.blit(dot, (1130,300))
+
         # Update the screen with anything new
         pg.display.flip()
 
