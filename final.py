@@ -1,4 +1,3 @@
-
 # Taylor Sayson
 # 13 May 2024
 # Block B
@@ -50,7 +49,6 @@ class Back(pg.sprite.Sprite):
         self.rect.centerx= x
         self.rect.y = 210
 
-
 # CREATE BALL CLASS
 class Ball(pg.sprite.Sprite):
     def __init__(self, players:pg.sprite.Group = None, rims:pg.sprite.Group = None):
@@ -91,11 +89,7 @@ class Ball(pg.sprite.Sprite):
         self.reshot = False
         
 
-    def update(self):
-        # Move ball
-        
-        
-
+    def update(self):  
         # Collisions between ball and player, and ball and rim
         collided = pg.sprite.spritecollide(self, self.player_sprites, False)
         scored = pg.sprite.spritecollide(self, self.rim_sprites, False )
@@ -110,8 +104,7 @@ class Ball(pg.sprite.Sprite):
         elif not scored:
             self.basket = None
         
-
-        
+        # Location above rim
         if self.rect.centerx<=140 and self.rect.centery<= 210 or self.rect.centerx>= 1130 and self.rect.centery<=210:
             self.count = True
             self.net = True
@@ -120,7 +113,6 @@ class Ball(pg.sprite.Sprite):
             self.count = False
         if self.rect.top>300:
             self.net2= False
-
 
         if self.net2 == False:
             self.net =False
@@ -132,26 +124,26 @@ class Ball(pg.sprite.Sprite):
                 self.hold = None
                 self.reshot = True
                 self.vel_y = 0.8
-                self.shooting = 0
+                self.shooting = 0    
 
-        
-
-
+            #if ball rim is the right rim
             if self.basket.rect.centerx ==1205:
                 if self.vel_y >0 and self.basket.rect.top +15>self.rect.bottom:
                     if self.rect.right > 1265 or (self.rect.left<self.basket.rect.left):
                         # self.rect.bottom = self.rect.top # if clipping happens, comment this out
                         self.vel_y *= -1       
                         self.vel_x -= .1        
-                
+                #If ball hits top rim on edges, bounce off
                 if self.vel_x > 0 and self.rect.right > self.basket.rect.left and self.rect.centerx < self.basket.rect.left and self.rect.top <self.basket.rect.top + 16 and self.rect.bottom > self.basket.rect.top + 16:
                     self.rect.right = self.basket.rect.left
                     self.vel_x *= -1
                     
+                # If ball hits bottom, rim bounce 
                 if self.vel_y < 0 and self.basket.rect.top <self.rect.top < self.basket.rect.top + 20:
                     self.rect.top = self.basket.rect.top +20
                     self.vel_y *= -1
-                    
+                
+                # If ball goes in slow down
                 elif self.vel_y > 0 and self.rect.top> self.basket.rect.top and self.net == True:
                     self.rect.centerx= self.basket.rect.centerx
                     self.vel_x=0
@@ -160,22 +152,22 @@ class Ball(pg.sprite.Sprite):
                         self.scorea += 1
                         self.count = False
                 
-                
+            #if ball rim is the left rim  
             elif self.basket.rect.centerx ==75:
                 if self.vel_y> 0 and self.basket.rect.top + 15 >self.rect.bottom:
                     if self.rect.left < 15 or (self.rect.right> self.basket.rect.right):
                         self.rect.bottom = self.basket.rect.top
                         self.vel_y *= -1
                         self.vel_x += .1
-            
+                #If ball hits top rim on edges, bounce off
                 if self.vel_x < 0 and self.rect.left < self.basket.rect.right and self.rect.centerx > self.basket.rect.right and self.rect.top <self.basket.rect.top + 16 and self.rect.bottom > self.basket.rect.top + 16:
                     self.rect.left = self.basket.rect.right
                     self.vel_x *= -1
-
+                # If ball hits bottom, rim bounce
                 if self.vel_y < 0 and self.basket.rect.top <self.rect.top < self.basket.rect.top + 20:
                     self.rect.top = self.basket.rect.top +20
                     self.vel_y *= -1
-                    
+                 # If ball goes in slow down   
                 elif self.vel_y > 0 and self.rect.top> self.basket.rect.top and self.net == True:
                     self.rect.centerx= self.basket.rect.centerx
                     self.vel_x=0
@@ -193,9 +185,7 @@ class Ball(pg.sprite.Sprite):
 
         # Once ball is no longer contacted by player, set reshot to False
         if not collided:
-            self.reshot = False
-                               
-
+            self.reshot = False         
 
         # If ball and player collide
         if self.hold:
@@ -332,7 +322,6 @@ class Player(pg.sprite.Sprite):
         # Define key presses
         pressed = pg.key.get_pressed()
         
-
         # If player is on ground, accelerate, top velocity of 8/-8
         if pressed[self.input["left"]] and self.vel_y==0:
             self.vel_x = max(self.vel_x - .8, -8)
@@ -357,8 +346,6 @@ class Player(pg.sprite.Sprite):
         elif pressed[self.input["up"]] and self.vel_y<=0 and self.rect.bottom > 480 and self.shooting ==0:
             self.vel_y = -16
 
-            
-    
         # Gravity
         else:
             self.vel_y = self.vel_y + .7
@@ -381,6 +368,17 @@ class Player(pg.sprite.Sprite):
             self.rect.top = 0
             self.vel_y = 0
 
+# Create wait function until space bar pressed to begin game
+def wait():
+    waiting = True
+    while waiting:
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                pg.quit()
+                exit()
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_SPACE:
+                    waiting = False
         
 def start():
     """Environment Setup and Game Loop"""
@@ -393,12 +391,27 @@ def start():
     font = pg.font.SysFont("Futura", 30)
     font2 = pg.font.SysFont("Futura", 60)
     font3 = pg.font.SysFont("Futura", 22)
+    font4 = pg.font.SysFont("Futura", 17)
+    # Game Title
+    pg.display.set_caption("1v1 Hoops")
+    #Game instructions
+    title = font2.render("WELCOME TO 1v1 Hoops", True, WHITE)
+    p1controls = font4.render("PLAYER 1 CONTROLS - MOVE LEFT: 'A', MOVE RIGHT: 'D', JUMP/BLOCK/INITIATE SHOT: 'W', SHOOT: release 'W'", True, WHITE)
+    p2controls = font4.render("PLAYER 2 CONTROLS - MOVE LEFT: 'left' key, MOVE RIGHT: 'right' key, JUMP/BLOCK/INITIATE SHOT: 'up' key, SHOOT: release 'up' key", True, WHITE)
+    startcommand = font3.render("Press SPACEBAR to begin!", True, WHITE)
+    screen.blit(title, (50, 100))
+    screen.blit(p1controls, (50, 300))
+    screen.blit(p2controls, (50, 340))
+    screen.blit(startcommand, (50, 475))
+    pg.display.flip()
+
+    # Wait for key press to start the game
+    wait()
 
     # All sprites go in this sprite Group
     all_sprites = pg.sprite.Group()
     player_sprites = pg.sprite.Group()
     rim_sprites = pg.sprite.Group()
-    
     
     # Create Player sprite objects
     player = Player(BLUE, {'left': pg.K_LEFT, 'right': pg.K_RIGHT, 'up': pg.K_UP, 'down': pg.K_DOWN}, 780, 720)
@@ -426,9 +439,6 @@ def start():
     all_sprites.add(rim1)
     all_sprites.add(rim2)    
 
-    # Game Title
-    pg.display.set_caption("1v1 Hoops")
-
     # --Main Loop--
     while not done:
         # --- Event Listener
@@ -442,22 +452,25 @@ def start():
         screen.blit(BACKGROUND, (0,0))
         all_sprites.draw(screen)
 
+        #score bug
         scorea = font.render(f"PLAYER 1: {ball.scorea}", True, GREEN)
         scoreb = font.render(f"PLAYER 2: {ball.scoreb}", True, BLUE)
         wincon = font3.render("First to 11 wins", True, WHITE)
-
         screen.blit(scorea, ((WIDTH// 2 -235), 30))
         screen.blit(scoreb, ((WIDTH//2 +45), 30))
         screen.blit(wincon, (WIDTH//2-80, 5))
+
+        #win screen words
         winscreen1 = font2.render("PLAYER 1 WINS!", True, GREEN)
         winscreen2 = font2.render("PLAYER 2 WINS!", True, BLUE)
 
-        if ball.scorea >=1:
+
+        #win condition 11 points
+        if ball.scorea >=11:
             screen.blit(winscreen1, (WIDTH//2 -250, HEIGHT//2-150))
             ball.count = False
 
-
-        if ball.scoreb >=1:
+        if ball.scoreb >=11:
             screen.blit(winscreen2, (WIDTH//2- 250, HEIGHT//2-150))
             ball.count = False
 
