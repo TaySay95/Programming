@@ -1,3 +1,4 @@
+
 # Taylor Sayson
 # 13 May 2024
 # Block B
@@ -113,7 +114,7 @@ class Ball(pg.sprite.Sprite):
         
 
         
-        if self.rect.left<=140 and self.rect.bottom<= 210 or self.rect.right>= 1130 and self.rect.bottom<=210:
+        if self.rect.centerx<=140 and self.rect.centery<= 210 or self.rect.centerx>= 1130 and self.rect.centery<=210:
             self.count = True
             self.net = True
             self.net2 = True
@@ -132,8 +133,8 @@ class Ball(pg.sprite.Sprite):
             if self.hold:
                 self.hold = None
                 self.reshot = True
-                self.vel_x = 0
                 self.vel_y = 0.8
+                self.shooting = 0
 
         
 
@@ -142,7 +143,8 @@ class Ball(pg.sprite.Sprite):
                 if self.vel_y >0 and self.basket.rect.top +15>self.rect.bottom:
                     if self.rect.right > 1265 or (self.rect.left<self.basket.rect.left):
                         # self.rect.bottom = self.rect.top # if clipping happens, comment this out
-                        self.vel_y *= -1                
+                        self.vel_y *= -1       
+                        self.vel_x -= .1        
                 
                 if self.vel_x > 0 and self.rect.right > self.basket.rect.left and self.rect.centerx < self.basket.rect.left and self.rect.top <self.basket.rect.top + 16 and self.rect.bottom > self.basket.rect.top + 16:
                     self.rect.right = self.basket.rect.left
@@ -166,6 +168,7 @@ class Ball(pg.sprite.Sprite):
                     if self.rect.left < 15 or (self.rect.right> self.basket.rect.right):
                         self.rect.bottom = self.basket.rect.top
                         self.vel_y *= -1
+                        self.vel_x += .1
             
                 if self.vel_x < 0 and self.rect.left < self.basket.rect.right and self.rect.centerx > self.basket.rect.right and self.rect.top <self.basket.rect.top + 16 and self.rect.bottom > self.basket.rect.top + 16:
                     self.rect.left = self.basket.rect.right
@@ -193,22 +196,23 @@ class Ball(pg.sprite.Sprite):
         # Once ball is no longer contacted by player, set reshot to False
         if not collided:
             self.reshot = False
-            
-        if self.hold:
-            for player in self.player_sprites:
-                if self.hold is player:
-                    player.shooting = 1
-                else:
-                    player.shooting = 0
+                               
+
 
         # If ball and player collide
         if self.hold:
-
-            
+            self.hold.shooting = 1
+            pressed = pg.key.get_pressed()
             # Make ball follow player if on ground
             if self.hold.rect.bottom == 680:
+                if pressed[self.hold.input["down"]]:
+                    self.rect.bottom = self.hold.rect.top + 23
+                    if self.hold.initial == 100:
+                        self.rect.left = self.hold.rect.right -35
+                    if self.hold.initial == 1180:
+                        self.rect.right = self.hold.rect.left +35
                  # follow on right side of player if player is moving right, left side if player moving left
-                if self.hold.vel_x>0:
+                elif self.hold.vel_x>0:
                     self.rect.left = self.hold.rect.right -15
                 elif self.hold.vel_x < 0:
                     self.rect.right = self.hold.rect.left +15
@@ -231,10 +235,12 @@ class Ball(pg.sprite.Sprite):
             # If player is about to land with the ball and shot is loaded, release ball to prevent travellling rule
             if self.hold.rect.bottom > 650 and self.hold.vel_y > 0 and self.shotloaded:
                 if self.hold.initial == 100:
+                    self.hold.shooting=0
                     self.hold = None
                     self.vel_x = self.shotx
                     self.vel_y = self.shoty
                 elif self.hold.initial == 1180:
+                    self.hold.shooting=0
                     self.hold = None
                     self.vel_x = -self.shotx
                     self.vel_y = self.shoty
@@ -246,7 +252,7 @@ class Ball(pg.sprite.Sprite):
 
             
             # Any instance player is in air, position ball in shooting position
-            elif (self.hold.rect.bottom < 680 and pressed[self.hold.input["up"]]) or (self.hold.rect.bottom < 680 and not self.shotloaded):
+            elif (self.hold.rect.bottom < 680 and pressed[self.hold.input["up"]]) or (self.hold.rect.bottom < 680 and not self.shotloaded) :
                     self.rect.bottom = self.hold.rect.top + 23
                     if self.hold.initial == 100:
                         self.rect.left = self.hold.rect.right -35
@@ -257,11 +263,13 @@ class Ball(pg.sprite.Sprite):
             else:
                     if self.shotloaded:
                         if self.hold.initial == 100:
+                            self.hold.shooting=0
                             self.hold = None
                             self.vel_x = self.shotx
                             self.vel_y = self.shoty
                             
                         elif self.hold.initial == 1180:
+                            self.hold.shooting=0
                             self.hold = None
                             self.vel_x = -self.shotx
                             self.vel_y = self.shoty
@@ -351,9 +359,9 @@ class Player(pg.sprite.Sprite):
 
         # Vertical movement
         # If up input pressed and player is going up set y velocity to make player jump, limit max height when player can input jump        
-        if pressed[self.input["up"]] and self.vel_y<=0 and self.rect.bottom > 550 and self.shooting ==1:
+        if pressed[self.input["up"]] and self.vel_y<=0 and self.rect.bottom > 570 and self.shooting ==1:
             self.vel_y = -16
-        elif pressed[self.input["up"]] and self.vel_y<=0 and self.rect.bottom > 450 and self.shooting ==0:
+        elif pressed[self.input["up"]] and self.vel_y<=0 and self.rect.bottom > 480 and self.shooting ==0:
             self.vel_y = -16
 
             
