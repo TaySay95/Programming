@@ -3,9 +3,7 @@
 # 13 May 2024
 # Block B
 
-import random
 import pygame as pg
-import time
 
 # --CONSTANTS--
 # COLOURS
@@ -205,24 +203,19 @@ class Ball(pg.sprite.Sprite):
             pressed = pg.key.get_pressed()
             # Make ball follow player if on ground
             if self.hold.rect.bottom == 680:
-                if pressed[self.hold.input["down"]]:
-                    self.rect.bottom = self.hold.rect.top + 23
-                    if self.hold.initial == 100:
-                        self.rect.left = self.hold.rect.right -35
-                    if self.hold.initial == 1180:
-                        self.rect.right = self.hold.rect.left +35
-                 # follow on right side of player if player is moving right, left side if player moving left
-                elif self.hold.vel_x>0:
+        
+                # follow on right side of player if player is moving right, left side if player moving left
+                if self.hold.vel_x>0:
                     self.rect.left = self.hold.rect.right -15
                 elif self.hold.vel_x < 0:
                     self.rect.right = self.hold.rect.left +15
                 # If player is not moving, face ball towards the hoop they are shooting on
                 elif self.hold.vel_x ==0:
-                    if self.hold.initial == 100:
+                    if self.hold.initial == 500:
                         self.rect.left = self.hold.rect.right -15
-                    if self.hold.initial == 1180:
+                    if self.hold.initial == 780:
                         self.rect.right = self.hold.rect.left +15
-                        
+                    
                 # Make player dribble ball if on ground
                 if self.rect.y <= 590:
                     self.vertical_direction = 1
@@ -234,12 +227,12 @@ class Ball(pg.sprite.Sprite):
             pressed = pg.key.get_pressed()
             # If player is about to land with the ball and shot is loaded, release ball to prevent travellling rule
             if self.hold.rect.bottom > 650 and self.hold.vel_y > 0 and self.shotloaded:
-                if self.hold.initial == 100:
+                if self.hold.initial == 500:
                     self.hold.shooting=0
                     self.hold = None
                     self.vel_x = self.shotx
                     self.vel_y = self.shoty
-                elif self.hold.initial == 1180:
+                elif self.hold.initial == 780:
                     self.hold.shooting=0
                     self.hold = None
                     self.vel_x = -self.shotx
@@ -254,21 +247,21 @@ class Ball(pg.sprite.Sprite):
             # Any instance player is in air, position ball in shooting position
             elif (self.hold.rect.bottom < 680 and pressed[self.hold.input["up"]]) or (self.hold.rect.bottom < 680 and not self.shotloaded) :
                     self.rect.bottom = self.hold.rect.top + 23
-                    if self.hold.initial == 100:
+                    if self.hold.initial == 500:
                         self.rect.left = self.hold.rect.right -35
-                    if self.hold.initial == 1180:
+                    if self.hold.initial == 780:
                         self.rect.right = self.hold.rect.left +35
       
             # If they are in air with shot loaded, and up input is no longer pressed, shoot ball
             else:
                     if self.shotloaded:
-                        if self.hold.initial == 100:
+                        if self.hold.initial == 500:
                             self.hold.shooting=0
                             self.hold = None
                             self.vel_x = self.shotx
                             self.vel_y = self.shoty
                             
-                        elif self.hold.initial == 1180:
+                        elif self.hold.initial == 780:
                             self.hold.shooting=0
                             self.hold = None
                             self.vel_x = -self.shotx
@@ -398,6 +391,8 @@ def start():
     done = False
     clock = pg.time.Clock()
     font = pg.font.SysFont("Futura", 30)
+    font2 = pg.font.SysFont("Futura", 60)
+    font3 = pg.font.SysFont("Futura", 22)
 
     # All sprites go in this sprite Group
     all_sprites = pg.sprite.Group()
@@ -406,8 +401,8 @@ def start():
     
     
     # Create Player sprite objects
-    player = Player(BLUE, {'left': pg.K_LEFT, 'right': pg.K_RIGHT, 'up': pg.K_UP, 'down': pg.K_DOWN}, 1180, 720)
-    player2 = Player(GREEN, {'left': pg.K_a, 'right': pg.K_d, 'up': pg.K_w, 'down': pg.K_s}, 100, 720)
+    player = Player(BLUE, {'left': pg.K_LEFT, 'right': pg.K_RIGHT, 'up': pg.K_UP, 'down': pg.K_DOWN}, 780, 720)
+    player2 = Player(GREEN, {'left': pg.K_a, 'right': pg.K_d, 'up': pg.K_w, 'down': pg.K_s}, 500, 720)
     player_sprites.add(player)
     player_sprites.add(player2)
 
@@ -449,9 +444,22 @@ def start():
 
         scorea = font.render(f"PLAYER 1: {ball.scorea}", True, GREEN)
         scoreb = font.render(f"PLAYER 2: {ball.scoreb}", True, BLUE)
+        wincon = font3.render("First to 11 wins", True, WHITE)
 
         screen.blit(scorea, ((WIDTH// 2 -235), 30))
         screen.blit(scoreb, ((WIDTH//2 +45), 30))
+        screen.blit(wincon, (WIDTH//2-80, 5))
+        winscreen1 = font2.render("PLAYER 1 WINS!", True, GREEN)
+        winscreen2 = font2.render("PLAYER 2 WINS!", True, BLUE)
+
+        if ball.scorea >=1:
+            screen.blit(winscreen1, (WIDTH//2 -250, HEIGHT//2-150))
+            ball.count = False
+
+
+        if ball.scoreb >=1:
+            screen.blit(winscreen2, (WIDTH//2- 250, HEIGHT//2-150))
+            ball.count = False
 
         # Update the screen with anything new
         pg.display.flip()
@@ -462,6 +470,7 @@ def start():
     pg.quit()
 
 def main():
+
     start()
 
 if __name__ == "__main__":
